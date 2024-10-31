@@ -124,11 +124,7 @@ for obj in obj_list:
         file_header0 = fitsFile[0].header
         headers.append(file_header0)
 
-        #try:
 
-        #    FLUXMAG0 = file_header0['FLUXMAG0']
-
-        #    zp =  2.5 * np.log10(FLUXMAG0)   # This is something Xuheng can't make sure.
 
         #except:
         if telescope == 'HSC':
@@ -142,69 +138,11 @@ for obj in obj_list:
                                             pos_type = 'wcs', header = fitsFile[1].header, 
 
                                             rm_bkglight = False, if_plot=False, zp = zp)
-
-        elif telescope == 'VISTA':
-            #do not expect to use VISTA with this code, modify PSF data fetching if necessary
-            #PSF = pyfits.getdata(f'{psfDirectory}{VISTAFileNameFormat(obj_name,band,True)}')
-
-            exptime = 90
-
-            zp = 27.0
-
-        elif telescope == 'DECam':
-
-            PSF = pyfits.getdata(f'{obj_name}/{obj_name}_PSF_{band}_stacked.fits')
-
-            if band == 'G':
-
-                exptime = 90
-
-                zp = 25.2
-
-            elif band == 'R':
-
-                exptime = 90
-
-                zp = 25.3
-
-            elif band == 'I':
-
-                exptime = 90
-
-                zp = 25.3
-
-            elif band == 'Z':
-
-                exptime = 90
-
-                zp = 25.0
-            else:
-
-                raise ValueError(f'{band} band is not supported!')
-            data_process = DataProcess(fov_image = fov_image, fov_noise_map = fitsFile[3].data ** 0.5, target_pos = target_pos, header = header, #pos_type = 'wcs',
-                                   rm_bkglight = True, exptime = exptime, if_plot=True, zp = zp)  #zp use 27.0 for convinence.
-        #Some default settings
         
         ps_pix_center_list = None 
         npixels = 15
         thresh=2.5
         nsigma = 2.8
-        if obj_name in ['ULASJ2224-0015']:
-            cut_radius = 35
-        if obj_name in ['ULASJ2315+0143']:
-            nsigma = 1.5
-        if obj_name in ['ULASJ1002+0137']:
-            npixels = 10
-            thresh = 1.0
-            nsigma = 1.5
-            #if telescope == 'DECam':
-                #fix the PS position to the image center
-
-            #    ps_pix_center_list = [[0,0]] 
-
-        # if obj_name in ['ULASJ0144+0036','ULASJ1002+0137']:
-
-        #     data_process.generate_target_materials(radius=None,if_plot=True, nsigma=2.0, npixels = 10, thresh=1.0, use_moments=False)
 
         data_process.generate_target_materials(radius=None,if_plot=True, nsigma=nsigma, npixels=npixels, thresh=thresh, use_moments=False)
         data_process.PSF_list = [PSF]
