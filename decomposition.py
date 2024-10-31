@@ -72,30 +72,24 @@ fix_n, fix_re = True, True
 save_fits_images = False #save fits images? This includes the model, the host only image, and the residual image
 fitting_level='shallow' #shallow, deep
 
-catalog = pd.read_csv(cataloguePath)
+catalogue = pd.read_csv(cataloguePath)
 
 
 
-obj_list = ['XMM00017']
+obj_list = [39627745474384020]
 
 
-
+print(list(catalogue["TARGETID"]))
 maindir = os.getcwd()
-#%%Some settings for the fitting
-#def serial_task(task_idx):
-waitTime = 10 #wait time in seconds
+
 for obj in obj_list:
-    
     os.chdir(maindir)
     point_source_num = 1
-    obj_No = 0
+    obj_No = list(catalogue["TARGETID"]).index(obj)
     print("obj_No:")
     print(obj_No)
-    obj_name,ra,dec= "39627745474384020", 180.48360864222906, -1.867077694226429
+    obj_name, ra, dec = obj, list(catalogue["ra_desi"])[obj_No], list(catalogue["dec_desi"])[obj_No]
 
-    # if object_id in ['234311.93-005034.3']:
-
-    #     point_source_num = 2
     print('working on object %s' %obj_name)
     #%%use galight to analyze:
     print('Fitting using GaLight... ... ...')
@@ -278,7 +272,7 @@ for obj in obj_list:
         data_process_list[i].apertures = apertures #Pass apertures to the data
         
         fit_sepc_l[i] = FittingSpecify(data_process_list[i])
-
+        del fit_sepc_l[i].apertures[0]
         fix_n_list, fix_Re_list = None, None #Not fixing the sersic parameters for fitting
 
         #fix_n_list, fix_Re_list = [[0,sersic_n]],[[0,sersic_R]]
@@ -298,14 +292,14 @@ for obj in obj_list:
         fit_run_l[i].run(algorithm_list = ['PSO'], setting_list=[{'sigma_scale':0.8,'n_particles':50,'n_iterations':200}])
 
         if fit_run_l[i].image_ps_list != []:
-            fit_run_l[i].plot_final_qso_fit(save_plot=True, target_ID= obj_name +'-'+ band ) #show_plot=False
+            fit_run_l[i].plot_final_qso_fit(save_plot=True, target_ID= str(obj_name) +'-'+ band ) #show_plot=False
 
         else:
             fit_run_l[i].plot_final_galaxy_fit(save_plot=True, target_ID= obj_name +'-'+ band )
 
             
 
-        fit_run_l[i].cal_astrometry()
+        #fit_run_l[i].cal_astrometry()
         fit_run_l[i].dump_result()
 
         #print(fit_run_l[i].fitting_specify_class.target_pos)
