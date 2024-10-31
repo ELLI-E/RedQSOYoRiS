@@ -46,7 +46,7 @@ cataloguePath = r"RedQSOCatalogue.csv"
 saveTo = r"testing/"
 
 
-elif telescope == 'HSC':
+if telescope == 'HSC':
     pixel_size = 0.168
     bands = 'I'
     lband = 'I' #The band fitting first and can also fit n and Re for other band.
