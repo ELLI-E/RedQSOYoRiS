@@ -39,13 +39,31 @@ from galight.tools.measure_tools import mask_obj
 from galight.tools.measure_tools import sort_apertures
 from multiprocessing import Pool
 import time
-telescope = 'HSC'
 
+#setup
 imageDirectory = "data/images"
 cataloguePath = r"data/RedQSOCatalogue.csv"
 saveTo = r"results/excludinghost"
+catalogue = pd.read_csv(cataloguePath)
 
+#choose object list
+print("Fetching object list...")
+contaminationFrame = pd.read_csv("data/contaminationCheck.csv")
+objectNames = list(contaminationFrame["OBJ_ID"])
+contaminated = list(contaminationFrame["Contaminated"])
+#to choose objects, first remove contaminated values
+print("Removing contaminated sources...")
+validObjects = []
+for i,name in enumerate(objectNames):
+    if contaminated == " 1":
+        continue
+    validObjects.append(name)
 
+#select object/s from valid object list
+obj_list = [validObjects[1]]
+
+#telescope settings
+telescope = 'HSC'
 if telescope == 'HSC':
     pixel_size = 0.168
     bands = 'I'
@@ -57,11 +75,6 @@ fix_n, fix_re = True, True
 save_fits_images = False #save fits images? This includes the model, the host only image, and the residual image
 fitting_level='shallow' #shallow, deep
 
-catalogue = pd.read_csv(cataloguePath)
-
-
-
-obj_list = [39627745474384020]
 
 
 print(list(catalogue["TARGETID"]))
