@@ -98,7 +98,7 @@ for obj in obj_list:
     headers = []
     for band,band_count in zip(bands,range(len(bands))):
         
-        fitsFile = pyfits.open(f'images/39627745474384020/39627745474384020_HSC-G.fits')  
+        fitsFile = pyfits.open(f'images/{obj}/{obj}_HSC-{band.upper()}.fits')  
         header = fitsFile[data_exten].header # if target position is add in WCS, the header should have the wcs information, i.e. header['EXPTIME']
 
         if 'NAXIS3' in header:
@@ -129,7 +129,7 @@ for obj in obj_list:
         #except:
         if telescope == 'HSC':
 
-            PSF = pyfits.getdata(f'images/39627745474384020/39627745474384020_HSC-G_psf.fits')
+            PSF = pyfits.getdata(f'images/{obj}/{obj}_HSC-{band.upper}_psf.fits')
 
             zp = 27.0
             
