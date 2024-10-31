@@ -41,9 +41,9 @@ from multiprocessing import Pool
 import time
 telescope = 'HSC'
 
-
-cataloguePath = r"RedQSOCatalogue.csv"
-saveTo = r"testing/"
+imageDirectory = "data/images"
+cataloguePath = r"data/RedQSOCatalogue.csv"
+saveTo = r"../testing/"
 
 
 if telescope == 'HSC':
@@ -83,7 +83,7 @@ for obj in obj_list:
     headers = []
     for band,band_count in zip(bands,range(len(bands))):
         
-        fitsFile = pyfits.open(f'images/{obj}/{obj}_HSC-{band.upper()}.fits')  
+        fitsFile = pyfits.open(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}.fits')  
         header = fitsFile[data_exten].header # if target position is add in WCS, the header should have the wcs information, i.e. header['EXPTIME']
 
         if 'NAXIS3' in header:
@@ -114,7 +114,7 @@ for obj in obj_list:
         #except:
         if telescope == 'HSC':
 
-            PSF = pyfits.getdata(f'images/{obj}/{obj}_HSC-{band.upper()}_psf.fits')
+            PSF = pyfits.getdata(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}_psf.fits')
 
             zp = 27.0
             

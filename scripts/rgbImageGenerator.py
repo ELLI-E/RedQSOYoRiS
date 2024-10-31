@@ -5,9 +5,9 @@ from astropy.visualization import make_lupton_rgb
 import astropy.io.fits as pyfits
 from matplotlib import pyplot as plt
 matplotlib.use('Agg')
-dataAddress = r"images/"
-imageAddress = r"rgbimages/"
-contamCSV = r"contaminationCheck.csv"
+dataAddress = r"data/images"
+imageAddress = r"rgbimages"
+contamCSV = r"data/contaminationCheck.csv"
 objects,contaminated = np.loadtxt(contamCSV,unpack=True,delimiter=",",skiprows=1,dtype=str)
 
 for i, object in enumerate(objects):
