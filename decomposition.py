@@ -93,10 +93,10 @@ for obj in obj_list:
 
         w = WCS(header)
         if cut: 
-            cut_file = Cutout2D(fitsFile[data_exten].data, position=SkyCoord(ra*u.deg,dec*u.deg), size=(size,size), wcs = w)
+            """cut_file = Cutout2D(fitsFile[data_exten].data, position=SkyCoord(ra*u.deg,dec*u.deg), size=(size,size), wcs = w)
             fov_image = cut_file.data
             target_pos = cut_file.center_cutout
-            print('A cutout will be made cetered at (ra=%s, dec=%s) with size (%s, %s)'%(ra,dec,size,size))
+            print('A cutout will be made cetered at (ra=%s, dec=%s) with size (%s, %s)'%(ra,dec,size,size))"""
 
         else:
             fov_image = fitsFile[data_exten].data
@@ -114,7 +114,7 @@ for obj in obj_list:
         #except:
         if telescope == 'HSC':
 
-            PSF = pyfits.getdata(f'images/{obj}/{obj}_HSC-{band.upper}_psf.fits')
+            PSF = pyfits.getdata(f'images/{obj}/{obj}_HSC-{band.upper()}_psf.fits')
 
             zp = 27.0
             
