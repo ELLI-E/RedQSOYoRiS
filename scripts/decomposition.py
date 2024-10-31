@@ -76,8 +76,6 @@ save_fits_images = False #save fits images? This includes the model, the host on
 fitting_level='shallow' #shallow, deep
 
 
-
-print(list(catalogue["TARGETID"]))
 maindir = os.getcwd()
 
 for obj in obj_list:
@@ -201,7 +199,7 @@ for obj in obj_list:
     # Create a new directory because it does not exist
         os.makedirs(results_path)
 
-    for i in run_list:  
+    for i in run_list: 
         band = bands[i]
 
         print("Staring fitting band-"+band+"... ... ...")
