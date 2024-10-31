@@ -43,7 +43,7 @@ telescope = 'HSC'
 
 imageDirectory = "data/images"
 cataloguePath = r"data/RedQSOCatalogue.csv"
-saveTo = r"../testing/"
+saveTo = r"results/excludinghost"
 
 
 if telescope == 'HSC':
