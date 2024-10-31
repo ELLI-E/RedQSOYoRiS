@@ -27,6 +27,6 @@ B = pyfits.open(f"{dataAddress}/{completeObjects[index]}/{completeObjects[index]
 image = make_lupton_rgb(R,G,B,stretch=0.5,Q=10)
 
 
-fig,ax = plt.subplots(figsize=(5,5))
 plt.title(f"{completeObjects[index]}")
-ax.imshow(image,origin="lower")
+plt.imshow(image,origin="lower")
+plt.show()
