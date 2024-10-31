@@ -66,8 +66,8 @@ obj_list = [validObjects[1]]
 telescope = 'HSC'
 if telescope == 'HSC':
     pixel_size = 0.168
-    bands = 'I'
-    lband = 'I' #The band fitting first and can also fit n and Re for other band.
+    bands = 'G'
+    lband = 'G' #The band fitting first and can also fit n and Re for other band.
     cut = False
     data_exten = 1
 
