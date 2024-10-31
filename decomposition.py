@@ -41,25 +41,10 @@ from multiprocessing import Pool
 import time
 telescope = 'HSC'
 
-import sys
+
 cataloguePath = r"RedQSOCatalogue.csv"
 saveTo = r"testing/"
 
-
-if telescope == 'VISTA': #bands = 'KJH'
-    pixel_size = 0.339 #arcsec/pix
-    data_exten = 1
-    bands = 'HJKYZ'
-    lband = 'K' #The band fitting first and can also fit n and Re for other band.
-    cut = False
-    size = 180
-    size = size/pixel_size
-
-elif telescope == 'DECam': #bands = 'griz'
-    pixel_size = 0.262 #arcsec/pix
-    bands = 'GRIZ'
-    cut = False
-    data_exten = 0
 
 elif telescope == 'HSC':
     pixel_size = 0.168
