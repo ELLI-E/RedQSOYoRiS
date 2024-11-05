@@ -41,7 +41,7 @@ from multiprocessing import Pool
 import time
 import logging
 #setup
-#matplotlib.use("agg")
+matplotlib.use("agg")
 imageDirectory = "data/images"
 cataloguePath = r"data/RedQSOCatalogue.csv"
 saveTo = r"results/excludinghost"
@@ -61,7 +61,7 @@ for i,name in enumerate(objectNames):
     validObjects.append(name)
 
 #select object/s from valid object list
-obj_list = [validObjects[29]]
+obj_list = validObjects[62:]
 
 #telescope settings
 telescope = 'HSC'
@@ -157,7 +157,7 @@ try:
         for i in range(len(bands)):
             # if obj_name in ['ULASJ0144+0036','ULASJ1002+0137']:
             #     data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = True, nsigma=2.0, npixels = 10, thresh=1.0, exp_sz= 1.2, if_plot=True)
-            data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = True, nsigma=nsigma, npixels=npixels, exp_sz= 1.2, if_plot=True, thresh=thresh)
+            data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = False, nsigma=nsigma, npixels=npixels, exp_sz= 1.2, if_plot=True, thresh=thresh)
 
             data_process_list[i].checkout()
         apertures = data_process_list[l_idx].apertures
