@@ -61,7 +61,7 @@ for i,name in enumerate(objectNames):
     validObjects.append(name)
 
 #select object/s from valid object list
-obj_list = validObjects[62:]
+obj_list = validObjects[113:]
 
 #telescope settings
 telescope = 'HSC'
