@@ -41,7 +41,7 @@ from multiprocessing import Pool
 import time
 import logging
 #setup
-matplotlib.use("agg")
+#matplotlib.use("agg")
 imageDirectory = "data/images"
 cataloguePath = r"data/RedQSOCatalogue.csv"
 saveTo = r"results/excludinghost"
@@ -56,12 +56,12 @@ contaminated = list(contaminationFrame["Contaminated"])
 print("Removing contaminated sources...")
 validObjects = []
 for i,name in enumerate(objectNames):
-    if contaminated == " 1":
+    if contaminated[i] == " 1":
         continue
     validObjects.append(name)
 
 #select object/s from valid object list
-obj_list = validObjects[113:]
+obj_list = [validObjects[29]]
 
 #telescope settings
 telescope = 'HSC'
@@ -150,7 +150,8 @@ try:
         l_idx = [i for i in range(len(bands)) if bands[i] == lband][0]  #The first index to run
         os.chdir(saveTo)
         run_list = [i for i in range(len(bands))]
-        
+        print("Testing elements for inf and nan:")
+        print(np.unique(np.isfinite(fov_image)))
         del(run_list[l_idx])
         run_list = [l_idx] + run_list  #The list define the order to run
         cut_radius = np.median([int(len(data_process_list[i].target_stamp)/2) for i in range(len(data_process_list))]) #* 1.4
