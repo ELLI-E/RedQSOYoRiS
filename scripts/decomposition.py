@@ -10,7 +10,6 @@ import os
 """
 Created on Fri Mar 24 03:08:25 2023
 @author: tang
-
 """
 
 import numpy as np
@@ -26,10 +25,6 @@ from glob import glob
 from astropy.nddata import Cutout2D
 import astropy.units as u
 from astropy.coordinates import SkyCoord
-#sys.path = sys.path[:-4]
-#sys.path.append('/Users/tang/Documents/Binary_quasar/codes/galight/')
-#print(sys.path)
-#from galight.tools.astro_tools import plt_fits,read_fits_exp,read_pixel_scale
 from galight.tools.cutout_tools import cut_center_auto
 from galight.data_process import DataProcess
 from astropy.wcs import WCS
@@ -41,10 +36,13 @@ from multiprocessing import Pool
 import time
 import logging
 #setup
-#matplotlib.use("agg")
+
+#turning script contents into a function
+def galightDecompose(imageDirectory,cataloguePath,saveTo,showPlots=False,start=0,stop=-1):
+matplotlib.use("agg")
 imageDirectory = "data/images"
 cataloguePath = r"data/RedQSOCatalogue.csv"
-saveTo = r"results/excludinghost"
+saveTo = r"results/cut50/excludinghost"
 catalogue = pd.read_csv(cataloguePath)
 
 #choose object list
@@ -61,14 +59,14 @@ for i,name in enumerate(objectNames):
     validObjects.append(name)
 
 #select object/s from valid object list
-obj_list = [validObjects[29]]
+obj_list = validObjects[90:94]
 
 #telescope settings
 telescope = 'HSC'
 if telescope == 'HSC':
     pixel_size = 0.168
-    bands = 'G'
-    lband = 'G' #The band fitting first and can also fit n and Re for other band.
+    bands = 'R'
+    lband = 'R' #The band fitting first and can also fit n and Re for other band.
     cut = False
     data_exten = 1
 
@@ -150,11 +148,11 @@ try:
         l_idx = [i for i in range(len(bands)) if bands[i] == lband][0]  #The first index to run
         os.chdir(saveTo)
         run_list = [i for i in range(len(bands))]
-        print("Testing elements for inf and nan:")
-        print(np.unique(np.isfinite(fov_image)))
+        
         del(run_list[l_idx])
         run_list = [l_idx] + run_list  #The list define the order to run
-        cut_radius = np.median([int(len(data_process_list[i].target_stamp)/2) for i in range(len(data_process_list))]) #* 1.4
+        #cut_radius = np.median([int(len(data_process_list[i].target_stamp)/2) for i in range(len(data_process_list))]) #* 1.4
+        cut_radius = 30
         for i in range(len(bands)):
             # if obj_name in ['ULASJ0144+0036','ULASJ1002+0137']:
             #     data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = True, nsigma=2.0, npixels = 10, thresh=1.0, exp_sz= 1.2, if_plot=True)

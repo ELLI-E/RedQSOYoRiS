@@ -3,3 +3,4 @@ rgbimages/
 *.csv
 testing/
 results/
+decompositionError.log
