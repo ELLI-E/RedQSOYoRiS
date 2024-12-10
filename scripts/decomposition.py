@@ -269,3 +269,13 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
         logger = logging.getLogger(__name__)
         logging.basicConfig(filename="decompositionError.log",level=logging.ERROR)
         logger.exception(f"{exception}")
+
+#if executing as a script:
+if __name__ == "__main__":
+    imageDirectory = "data/images"
+    cataloguePath = r"data/RedQSOCatalogue.csv"
+    saveTo = r"results/cut50/excludinghost"
+    start = int(input("Start index: "))
+    stop = int(input("End index: "))
+    band = str(input("Band: "))
+    galightDecompose(imageDirectory,cataloguePath,saveTo,False,start,stop,band,band)
