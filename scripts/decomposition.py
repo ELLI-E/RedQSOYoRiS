@@ -38,236 +38,234 @@ import logging
 #setup
 
 #turning script contents into a function
-def galightDecompose(imageDirectory,cataloguePath,saveTo,showPlots=False,start=0,stop=-1):
-matplotlib.use("agg")
-imageDirectory = "data/images"
-cataloguePath = r"data/RedQSOCatalogue.csv"
-saveTo = r"results/cut50/excludinghost"
-catalogue = pd.read_csv(cataloguePath)
+def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,start=0,stop=-1,bands="I",lband="I"):
+    if not showingPlots:
+        matplotlib.use("agg")
 
-#choose object list
-print("Fetching object list...")
-contaminationFrame = pd.read_csv("data/contaminationCheck.csv")
-objectNames = list(contaminationFrame["OBJ_ID"])
-contaminated = list(contaminationFrame["Contaminated"])
-#to choose objects, first remove contaminated values
-print("Removing contaminated sources...")
-validObjects = []
-for i,name in enumerate(objectNames):
-    if contaminated[i] == " 1":
-        continue
-    validObjects.append(name)
+    #choose object list
+    print("Fetching object list...")
+    catalogue = pd.read_csv(cataloguePath)
+    contaminationFrame = pd.read_csv("data/contaminationCheck.csv")
+    objectNames = list(contaminationFrame["OBJ_ID"])
+    contaminated = list(contaminationFrame["Contaminated"])
+    #to choose objects, first remove contaminated values
+    print("Removing contaminated sources...")
+    validObjects = []
+    for i,name in enumerate(objectNames):
+        if contaminated[i] == " 1":
+            continue
+        validObjects.append(name)
 
-#select object/s from valid object list
-obj_list = validObjects[90:94]
+    #select object/s from valid object list
+    obj_list = validObjects[start:stop]
 
-#telescope settings
-telescope = 'HSC'
-if telescope == 'HSC':
-    pixel_size = 0.168
-    bands = 'R'
-    lband = 'R' #The band fitting first and can also fit n and Re for other band.
-    cut = False
-    data_exten = 1
+    #telescope settings
+    telescope = 'HSC'
+    if telescope == 'HSC':
+        pixel_size = 0.168
+        bands = bands
+        lband = lband #The band fitting first and can also fit n and Re for other band.
+        cut = False
+        data_exten = 1
 
-fix_n, fix_re = True, True
-save_fits_images = False #save fits images? This includes the model, the host only image, and the residual image
-fitting_level='shallow' #shallow, deep
+    fix_n, fix_re = True, True
+    save_fits_images = False #save fits images? This includes the model, the host only image, and the residual image
+    fitting_level='shallow' #shallow, deep
 
 
-maindir = os.getcwd()
-try:
-    for obj in obj_list:
-        os.chdir(maindir)
-        point_source_num = 1
-        obj_No = list(catalogue["TARGETID"]).index(obj)
-        print("obj_No:")
-        print(obj_No)
-        obj_name, ra, dec = obj, list(catalogue["ra_desi"])[obj_No], list(catalogue["dec_desi"])[obj_No]
+    maindir = os.getcwd()
+    try:
+        for obj in obj_list:
+            os.chdir(maindir)
+            point_source_num = 1
+            obj_No = list(catalogue["TARGETID"]).index(obj)
+            print("obj_No:")
+            print(obj_No)
+            obj_name, ra, dec = obj, list(catalogue["ra_desi"])[obj_No], list(catalogue["dec_desi"])[obj_No]
 
-        print('working on object %s' %obj_name)
-        #%%use galight to analyze:
-        print('Fitting using GaLight... ... ...')
-        
-        data_process_list = []
-        headers = []
-        for band,band_count in zip(bands,range(len(bands))):
+            print('working on object %s' %obj_name)
+            #%%use galight to analyze:
+            print('Fitting using GaLight... ... ...')
             
-            fitsFile = pyfits.open(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}.fits')  
-            header = fitsFile[data_exten].header # if target position is add in WCS, the header should have the wcs information, i.e. header['EXPTIME']
+            data_process_list = []
+            headers = []
+            for band,band_count in zip(bands,range(len(bands))):
+                
+                fitsFile = pyfits.open(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}.fits')  
+                header = fitsFile[data_exten].header # if target position is add in WCS, the header should have the wcs information, i.e. header['EXPTIME']
 
-            if 'NAXIS3' in header:
-                print("Remove the third axis from the header.")
-                header['NAXIS'] = 2
-                del header['NAXIS3']
+                if 'NAXIS3' in header:
+                    print("Remove the third axis from the header.")
+                    header['NAXIS'] = 2
+                    del header['NAXIS3']
 
-            w = WCS(header)
-            if cut: 
-                """cut_file = Cutout2D(fitsFile[data_exten].data, position=SkyCoord(ra*u.deg,dec*u.deg), size=(size,size), wcs = w)
-                fov_image = cut_file.data
-                target_pos = cut_file.center_cutout
-                print('A cutout will be made cetered at (ra=%s, dec=%s) with size (%s, %s)'%(ra,dec,size,size))"""
+                w = WCS(header)
+                if cut: 
+                    """cut_file = Cutout2D(fitsFile[data_exten].data, position=SkyCoord(ra*u.deg,dec*u.deg), size=(size,size), wcs = w)
+                    fov_image = cut_file.data
+                    target_pos = cut_file.center_cutout
+                    print('A cutout will be made cetered at (ra=%s, dec=%s) with size (%s, %s)'%(ra,dec,size,size))"""
 
-            else:
-                fov_image = fitsFile[data_exten].data
-                #target_pos = (header['CRVAL1'],header['CRVAL2'])
-                if telescope == 'HSC':
-                    target_pos = [ra, dec]
                 else:
-                    target_pos = (fov_image.shape[0]/2, fov_image.shape[1]/2)
+                    fov_image = fitsFile[data_exten].data
+                    #target_pos = (header['CRVAL1'],header['CRVAL2'])
+                    if telescope == 'HSC':
+                        target_pos = [ra, dec]
+                    else:
+                        target_pos = (fov_image.shape[0]/2, fov_image.shape[1]/2)
 
-            file_header0 = fitsFile[0].header
-            headers.append(file_header0)
+                file_header0 = fitsFile[0].header
+                headers.append(file_header0)
 
 
 
-            #except:
-            if telescope == 'HSC':
+                #except:
+                if telescope == 'HSC':
 
-                PSF = pyfits.getdata(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}_psf.fits')
+                    PSF = pyfits.getdata(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}_psf.fits')
 
-                zp = 27.0
+                    zp = 27.0
+                    
+                    data_process = DataProcess(fov_image = fitsFile[1].data, fov_noise_map = fitsFile[3].data ** 0.5, target_pos = [ra, dec],
+
+                                                    pos_type = 'wcs', header = fitsFile[1].header, 
+
+                                                    rm_bkglight = False, if_plot=False, zp = zp)
                 
-                data_process = DataProcess(fov_image = fitsFile[1].data, fov_noise_map = fitsFile[3].data ** 0.5, target_pos = [ra, dec],
+                ps_pix_center_list = None 
+                npixels = 15
+                thresh=2.5
+                nsigma = 2.8
 
-                                                pos_type = 'wcs', header = fitsFile[1].header, 
+                data_process.generate_target_materials(radius=None,if_plot=True, nsigma=nsigma, npixels=npixels, thresh=thresh, use_moments=False)
+                data_process.PSF_list = [PSF]
+                print(band, 'band delta pixel: ', data_process.deltaPix)
 
-                                                rm_bkglight = False, if_plot=False, zp = zp)
+                data_process_list.append(data_process)
+            #%% Determining the common settings for all bands, including cutout radius and apertures.
+            l_idx = [i for i in range(len(bands)) if bands[i] == lband][0]  #The first index to run
+            os.chdir(saveTo)
+            run_list = [i for i in range(len(bands))]
             
-            ps_pix_center_list = None 
-            npixels = 15
-            thresh=2.5
-            nsigma = 2.8
+            del(run_list[l_idx])
+            run_list = [l_idx] + run_list  #The list define the order to run
+            #cut_radius = np.median([int(len(data_process_list[i].target_stamp)/2) for i in range(len(data_process_list))]) #* 1.4
+            cut_radius = 30
+            for i in range(len(bands)):
+                # if obj_name in ['ULASJ0144+0036','ULASJ1002+0137']:
+                #     data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = True, nsigma=2.0, npixels = 10, thresh=1.0, exp_sz= 1.2, if_plot=True)
+                data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = False, nsigma=nsigma, npixels=npixels, exp_sz= 1.2, if_plot=True, thresh=thresh)
 
-            data_process.generate_target_materials(radius=None,if_plot=True, nsigma=nsigma, npixels=npixels, thresh=thresh, use_moments=False)
-            data_process.PSF_list = [PSF]
-            print(band, 'band delta pixel: ', data_process.deltaPix)
+                data_process_list[i].checkout()
+            apertures = data_process_list[l_idx].apertures
+            for i in run_list:
+                #print("Waiting...")
+                #time.sleep(waitTime)
+                if i != l_idx:
 
-            data_process_list.append(data_process)
-        #%% Determining the common settings for all bands, including cutout radius and apertures.
-        l_idx = [i for i in range(len(bands)) if bands[i] == lband][0]  #The first index to run
-        os.chdir(saveTo)
-        run_list = [i for i in range(len(bands))]
-        
-        del(run_list[l_idx])
-        run_list = [l_idx] + run_list  #The list define the order to run
-        #cut_radius = np.median([int(len(data_process_list[i].target_stamp)/2) for i in range(len(data_process_list))]) #* 1.4
-        cut_radius = 30
-        for i in range(len(bands)):
-            # if obj_name in ['ULASJ0144+0036','ULASJ1002+0137']:
-            #     data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = True, nsigma=2.0, npixels = 10, thresh=1.0, exp_sz= 1.2, if_plot=True)
-            data_process_list[i].generate_target_materials(radius=cut_radius, create_mask = False, nsigma=nsigma, npixels=npixels, exp_sz= 1.2, if_plot=True, thresh=thresh)
+                    covers = mask_obj(data_process_list[i].target_stamp, apertures, if_plot=False, sum_mask = True)
 
-            data_process_list[i].checkout()
-        apertures = data_process_list[l_idx].apertures
-        for i in run_list:
-            #print("Waiting...")
-            #time.sleep(waitTime)
-            if i != l_idx:
+                    for j in range(len(data_process_list[i].apertures)):
 
-                covers = mask_obj(data_process_list[i].target_stamp, apertures, if_plot=False, sum_mask = True)
+                        new_cover = mask_obj(data_process_list[i].target_stamp, [data_process_list[i].apertures[j]], if_plot=False, sum_mask = True)
 
-                for j in range(len(data_process_list[i].apertures)):
+                        positions = [apertures[k].positions for k in range(len(apertures)) ]
 
-                    new_cover = mask_obj(data_process_list[i].target_stamp, [data_process_list[i].apertures[j]], if_plot=False, sum_mask = True)
+                        dists = [ np.sqrt((np.sum((data_process_list[i].apertures[j].positions - 
 
-                    positions = [apertures[k].positions for k in range(len(apertures)) ]
+                                        positions[k])**2))) for k in range(len(apertures)) ]
 
-                    dists = [ np.sqrt((np.sum((data_process_list[i].apertures[j].positions - 
+                        cond1 = np.sum(covers - new_cover*covers) > np.sum(1-new_cover)/2 #If 1/2 of the area covered by the aperture is new)
 
-                                    positions[k])**2))) for k in range(len(apertures)) ]
+                        cond2 = np.sum( (1-new_cover) * covers ) > np.sum(1-new_cover )*4/5 #If 1/5 of the new aper is not overlap with pervious aper
 
-                    cond1 = np.sum(covers - new_cover*covers) > np.sum(1-new_cover)/2 #If 1/2 of the area covered by the aperture is new)
+                        cond3 = np.min(dists) > 4  #If center offset above 4 pixel
 
-                    cond2 = np.sum( (1-new_cover) * covers ) > np.sum(1-new_cover )*4/5 #If 1/5 of the new aper is not overlap with pervious aper
+                        if cond1 and cond2 and cond3 :
 
-                    cond3 = np.min(dists) > 4  #If center offset above 4 pixel
+                            apertures.append(data_process_list[i].apertures[j])
 
-                    if cond1 and cond2 and cond3 :
-
-                        apertures.append(data_process_list[i].apertures[j])
-
-        
-
-        apertures = sort_apertures(data_process_list[0].target_stamp, apertures)    #%%
-
-        fit_sepc_l, fit_run_l = [None]*5, [None]*5
-
-        results_path = f'{obj_name}/fitting_results'
-
-        if not os.path.exists(results_path):
-        # Create a new directory because it does not exist
-            os.makedirs(results_path)
-
-        for i in run_list: 
-            band = bands[i]
-
-            print("Staring fitting band-"+band+"... ... ...")
-            data_process_list[i].apertures = apertures #Pass apertures to the data
             
-            fit_sepc_l[i] = FittingSpecify(data_process_list[i])
-            del fit_sepc_l[i].apertures[0]
-            fix_n_list, fix_Re_list = None, None #Not fixing the sersic parameters for fitting
 
-            #fix_n_list, fix_Re_list = [[0,sersic_n]],[[0,sersic_R]]
-            #if i != l_idx: #use n and R from i band
-            #    if fix_n == True:
-            #        fix_n_list = [[0,fit_run_l[l_idx].final_result_galaxy[0]['n_sersic'] ]]
-            #    if fix_re == True:
-            #        fix_Re_list = [[0,fit_run_l[l_idx].final_result_galaxy[0]['R_sersic'] ]]
+            apertures = sort_apertures(data_process_list[0].target_stamp, apertures)    #%%
 
-            fit_sepc_l[i].prepare_fitting_seq(point_source_num = point_source_num, supersampling_factor=3,point_source_supersampling_factor=3, 
+            fit_sepc_l, fit_run_l = [None]*5, [None]*5
 
-                                            fix_n_list= fix_n_list, fix_Re_list=fix_Re_list, ps_pix_center_list = ps_pix_center_list)
+            results_path = f'{obj_name}/fitting_results'
 
-            fit_sepc_l[i].plot_fitting_sets('{0}/fitting_results/{1}-fitconfig-band-{2}.png'.format(obj_name,obj_name,band.lower()))
-            fit_sepc_l[i].build_fitting_seq()
-            fit_run_l[i] = FittingProcess(fit_sepc_l[i], savename = '{0}/fitting_results/{1}-result-band-{2}'.format(obj_name,obj_name,band.lower()), fitting_level=fitting_level)
-            fit_run_l[i].run(algorithm_list = ['PSO'], setting_list=[{'sigma_scale':0.8,'n_particles':50,'n_iterations':200}])
+            if not os.path.exists(results_path):
+            # Create a new directory because it does not exist
+                os.makedirs(results_path)
 
-            if fit_run_l[i].image_ps_list != []:
-                fit_run_l[i].plot_final_qso_fit(save_plot=True, target_ID= str(obj_name) +'-'+ band ) #show_plot=False
+            for i in run_list: 
+                band = bands[i]
 
-            else:
-                fit_run_l[i].plot_final_galaxy_fit(save_plot=True, target_ID= obj_name +'-'+ band )
-
+                print("Staring fitting band-"+band+"... ... ...")
+                data_process_list[i].apertures = apertures #Pass apertures to the data
                 
+                fit_sepc_l[i] = FittingSpecify(data_process_list[i])
+                del fit_sepc_l[i].apertures[0]
+                fix_n_list, fix_Re_list = None, None #Not fixing the sersic parameters for fitting
 
-            #fit_run_l[i].cal_astrometry()
-            fit_run_l[i].dump_result()
+                #fix_n_list, fix_Re_list = [[0,sersic_n]],[[0,sersic_R]]
+                #if i != l_idx: #use n and R from i band
+                #    if fix_n == True:
+                #        fix_n_list = [[0,fit_run_l[l_idx].final_result_galaxy[0]['n_sersic'] ]]
+                #    if fix_re == True:
+                #        fix_Re_list = [[0,fit_run_l[l_idx].final_result_galaxy[0]['R_sersic'] ]]
 
-            #print(fit_run_l[i].fitting_specify_class.target_pos)
-            #fit_run.fitting_specify_class.segm_deblend
-            #Save the fits files
+                fit_sepc_l[i].prepare_fitting_seq(point_source_num = point_source_num, supersampling_factor=3,point_source_supersampling_factor=3, 
+
+                                                fix_n_list= fix_n_list, fix_Re_list=fix_Re_list, ps_pix_center_list = ps_pix_center_list)
+
+                fit_sepc_l[i].plot_fitting_sets('{0}/fitting_results/{1}-fitconfig-band-{2}.png'.format(obj_name,obj_name,band.lower()))
+                fit_sepc_l[i].build_fitting_seq()
+                fit_run_l[i] = FittingProcess(fit_sepc_l[i], savename = '{0}/fitting_results/{1}-result-band-{2}'.format(obj_name,obj_name,band.lower()), fitting_level=fitting_level)
+                fit_run_l[i].run(algorithm_list = ['PSO'], setting_list=[{'sigma_scale':0.8,'n_particles':50,'n_iterations':200}])
+
+                if fit_run_l[i].image_ps_list != []:
+                    fit_run_l[i].plot_final_qso_fit(save_plot=True, target_ID= str(obj_name) +'-'+ band ) #show_plot=False
+
+                else:
+                    fit_run_l[i].plot_final_galaxy_fit(save_plot=True, target_ID= obj_name +'-'+ band )
+
+                    
+
+                #fit_run_l[i].cal_astrometry()
+                fit_run_l[i].dump_result()
+
+                #print(fit_run_l[i].fitting_specify_class.target_pos)
+                #fit_run.fitting_specify_class.segm_deblend
+                #Save the fits files
+                
+                if save_fits_images:
+                    header = headers[i]
             
-            if save_fits_images:
-                header = headers[i]
-        
-                host = fit_run_l[i].flux_2d_out['data'] - fit_run_l[i].flux_2d_out['model'] + fit_run_l[i].image_host_list[0]
-        
-                pyfits.PrimaryHDU(host,header=header).writeto(f'{obj_name}/fitting_results/fit_image_{obj_name}_{telescope}-{band}_host.fits', overwrite=True)
-        
-                for key, name in zip(fit_run_l[i].flux_2d_out,['data', 'model', 'sersic', 'data-model=residual']):
-                    pyfits.PrimaryHDU(fit_run_l[i].flux_2d_out[key],header=header).writeto(f'{obj_name}/fitting_results/fit_image_{obj_name}_{telescope}-{band}_{name}.fits', overwrite=True)
-            #continue
+                    host = fit_run_l[i].flux_2d_out['data'] - fit_run_l[i].flux_2d_out['model'] + fit_run_l[i].image_host_list[0]
+            
+                    pyfits.PrimaryHDU(host,header=header).writeto(f'{obj_name}/fitting_results/fit_image_{obj_name}_{telescope}-{band}_host.fits', overwrite=True)
+            
+                    for key, name in zip(fit_run_l[i].flux_2d_out,['data', 'model', 'sersic', 'data-model=residual']):
+                        pyfits.PrimaryHDU(fit_run_l[i].flux_2d_out[key],header=header).writeto(f'{obj_name}/fitting_results/fit_image_{obj_name}_{telescope}-{band}_{name}.fits', overwrite=True)
+                #continue
 
 
-                #Script to remove the fitted target
+                    #Script to remove the fitted target
 
-                # if len(fit_run_l[i].image_host_list) > 1 and point_source_num>0: #if more than 1 obj is detected in the fov
+                    # if len(fit_run_l[i].image_host_list) > 1 and point_source_num>0: #if more than 1 obj is detected in the fov
 
-                #     fit_run_l[i].targets_subtraction(save_fitsfile=True, sub_gal_list=list(range(len(fit_run_l[i].image_host_list)))[1:], sub_qso_list=[0])
+                    #     fit_run_l[i].targets_subtraction(save_fitsfile=True, sub_gal_list=list(range(len(fit_run_l[i].image_host_list)))[1:], sub_qso_list=[0])
 
-                # else:
+                    # else:
 
-                #     fit_run_l[i].targets_subtraction(save_fitsfile=True, sub_qso_list=[0])
+                    #     fit_run_l[i].targets_subtraction(save_fitsfile=True, sub_qso_list=[0])
 
-        # for n in range(len(obj_list)): #len(obj_list)
+            # for n in range(len(obj_list)): #len(obj_list)
 
-        # for n in range(10,len(obj_list)): #len(obj_list)
+            # for n in range(10,len(obj_list)): #len(obj_list)
 
-        #     serial_task(n)
-except Exception as exception:
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(filename="decompositionError.log",level=logging.ERROR)
-    logger.exception(f"{exception}")
+            #     serial_task(n)
+    except Exception as exception:
+        logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="decompositionError.log",level=logging.ERROR)
+        logger.exception(f"{exception}")
