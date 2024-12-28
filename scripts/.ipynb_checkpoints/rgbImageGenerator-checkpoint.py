@@ -4,7 +4,7 @@ import matplotlib
 from astropy.visualization import make_lupton_rgb
 import astropy.io.fits as pyfits
 from matplotlib import pyplot as plt
-matplotlib.use('Agg')
+
 def generateImages(objects,imageAddress,dataAddress,contaminated=[]):
     #commented out old addresses, leaving for reference
     """dataAddress = r"data/images"
@@ -24,3 +24,5 @@ def generateImages(objects,imageAddress,dataAddress,contaminated=[]):
             image = make_lupton_rgb(R,G,B,stretch = 0.5,Q=10)
             plt.imshow(image)
             plt.savefig(f"{imageAddress}/{object}.png")
+#if __name__ == "__main__":
+    #matplotlib.use('Agg')
