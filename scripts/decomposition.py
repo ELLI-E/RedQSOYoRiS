@@ -57,8 +57,8 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
         validObjects.append(name)
 
     #select object/s from valid object list
-    obj_list = validObjects[start:stop]
-
+    #obj_list = validObjects[start:stop]
+    obj_list = ['39627752067828959', '39627752105579342', '39627763652496396', '39627770262716602', '39627788335975931', '39627818014869907', '39627836721466661', '39627842727709215', '39627872809256303', '39633114284164461', '39633118654629545', '39633118709154253', '39633123188675106', '39633127647217351', '39633136572695884', '39633153953891801']
     #telescope settings
     telescope = 'HSC'
     if telescope == 'HSC':
@@ -78,7 +78,7 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
         for obj in obj_list:
             os.chdir(maindir)
             point_source_num = 1
-            obj_No = list(catalogue["TARGETID"]).index(obj)
+            obj_No = list(catalogue["TARGETID"]).index(int(obj))
             print("obj_No:")
             print(obj_No)
             obj_name, ra, dec = obj, list(catalogue["ra_desi"])[obj_No], list(catalogue["dec_desi"])[obj_No]
@@ -204,7 +204,7 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
                 data_process_list[i].apertures = apertures #Pass apertures to the data
                 
                 fit_sepc_l[i] = FittingSpecify(data_process_list[i])
-                del fit_sepc_l[i].apertures[0]
+                #del fit_sepc_l[i].apertures[0] # removing galaxy component
                 fix_n_list, fix_Re_list = None, None #Not fixing the sersic parameters for fitting
 
                 #fix_n_list, fix_Re_list = [[0,sersic_n]],[[0,sersic_R]]
@@ -274,7 +274,7 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
 if __name__ == "__main__":
     imageDirectory = "data/images"
     cataloguePath = r"data/RedQSOCatalogue.csv"
-    saveTo = r"results/cut50/excludinghost"
+    saveTo = r"results/cut50_ss/includinghost"
     start = int(input("Start index: "))
     stop = int(input("End index: "))
     band = str(input("Band: "))
