@@ -5,3 +5,5 @@ testing/
 results/
 decompositionError.log
 plots/
+data/
+scripts/DESI_pyQSOFit_example.py
