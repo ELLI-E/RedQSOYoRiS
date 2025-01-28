@@ -45,21 +45,7 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
     #choose object list
     print("Fetching object list...")
     catalogue = pd.read_csv(cataloguePath)
-    contaminationFrame = pd.read_csv("data/contaminationCheck.csv")
-    objectNames = list(contaminationFrame["OBJ_ID"])
-    contaminated = list(contaminationFrame["Contaminated"])
-    #to choose objects, first remove contaminated values
-    print("Removing contaminated sources...")
-    validObjects = []
-    for i,name in enumerate(objectNames):
-        if contaminated[i] == " 1":
-            continue
-        validObjects.append(name)
-
-    #select object/s from valid object list
-    #obj_list = validObjects[start:stop]
-    obj_list = ['39627752067828959', '39627752105579342', '39627752122355042', '39627763652496396', '39627770262716602', '39627788335975931', '39627799819979870', '39627841591051279', '39627842727709215', '39627877838225923', '39633114284164461', '39633118654629545', '39633136572695884', '39633145246517319']
-    #obj_list = obj_list[start:stop]
+    obj_list = list(catalogue["DESI_ID"])
     #telescope settings
     telescope = 'HSC'
     if telescope == 'HSC':
@@ -76,13 +62,13 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
 
     maindir = os.getcwd()
     try:
-        for obj in obj_list:
+        for obj in obj_list[start:stop]:
             os.chdir(maindir)
             point_source_num = 1
-            obj_No = list(catalogue["TARGETID"]).index(int(obj))
+            obj_No = list(catalogue["DESI_ID"]).index(int(obj))
             print("obj_No:")
             print(obj_No)
-            obj_name, ra, dec = obj, list(catalogue["ra_desi"])[obj_No], list(catalogue["dec_desi"])[obj_No]
+            obj_name, ra, dec = obj, list(catalogue["DESI_RA"])[obj_No], list(catalogue["DESI_Dec"])[obj_No]
 
             print('working on object %s' %obj_name)
             #%%use galight to analyze:
@@ -274,9 +260,9 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
 
 #if executing as a script:
 if __name__ == "__main__":
-    imageDirectory = "data/images"
-    cataloguePath = r"data/RedQSOCatalogue.csv"
-    saveTo = r"results/cut50_ss/includinghost"
+    imageDirectory = "data/images/desisample"
+    cataloguePath = r"data/DESICatalogue.csv"
+    saveTo = r"results/desitargets/excludinghost"
     start = int(input("Start index: "))
     stop = int(input("End index: "))
     band = str(input("Band: "))
