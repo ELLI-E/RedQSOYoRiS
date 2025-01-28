@@ -58,7 +58,8 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
 
     #select object/s from valid object list
     #obj_list = validObjects[start:stop]
-    obj_list = ['39627752067828959', '39627752105579342', '39627763652496396', '39627770262716602', '39627788335975931', '39627818014869907', '39627836721466661', '39627842727709215', '39627872809256303', '39633114284164461', '39633118654629545', '39633118709154253', '39633123188675106', '39633127647217351', '39633136572695884', '39633153953891801']
+    obj_list = ['39627752067828959', '39627752105579342', '39627752122355042', '39627763652496396', '39627770262716602', '39627788335975931', '39627799819979870', '39627841591051279', '39627842727709215', '39627877838225923', '39633114284164461', '39633118654629545', '39633136572695884', '39633145246517319']
+    #obj_list = obj_list[start:stop]
     #telescope settings
     telescope = 'HSC'
     if telescope == 'HSC':
@@ -231,7 +232,8 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
 
                     
 
-                #fit_run_l[i].cal_astrometry()
+                fit_run_l[i].cal_astrometry()
+                print(f"Galaxy result: {fit_run_l[i].final_result_galaxy[0]}")
                 fit_run_l[i].dump_result()
 
                 #print(fit_run_l[i].fitting_specify_class.target_pos)
