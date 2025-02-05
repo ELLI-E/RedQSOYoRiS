@@ -191,7 +191,7 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
                 data_process_list[i].apertures = apertures #Pass apertures to the data
                 
                 fit_sepc_l[i] = FittingSpecify(data_process_list[i])
-                #del fit_sepc_l[i].apertures[0] # removing galaxy component
+                del fit_sepc_l[i].apertures[0] # removing galaxy component
                 fix_n_list, fix_Re_list = None, None #Not fixing the sersic parameters for fitting
 
                 #fix_n_list, fix_Re_list = [[0,sersic_n]],[[0,sersic_R]]
@@ -218,8 +218,8 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
 
                     
 
-                fit_run_l[i].cal_astrometry()
-                print(f"Galaxy result: {fit_run_l[i].final_result_galaxy[0]}")
+                #fit_run_l[i].cal_astrometry()
+                #print(f"Galaxy result: {fit_run_l[i].final_result_galaxy[0]}")
                 fit_run_l[i].dump_result()
 
                 #print(fit_run_l[i].fitting_specify_class.target_pos)
