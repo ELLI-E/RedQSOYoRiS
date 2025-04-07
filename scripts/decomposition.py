@@ -78,7 +78,7 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
             headers = []
             for band,band_count in zip(bands,range(len(bands))):
                 
-                fitsFile = pyfits.open(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}.fits')  
+                fitsFile = pyfits.open(f'{imageDirectory}/{obj}_HSC-{band.upper()}.fits')  
                 header = fitsFile[data_exten].header # if target position is add in WCS, the header should have the wcs information, i.e. header['EXPTIME']
 
                 if 'NAXIS3' in header:
@@ -109,7 +109,7 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
                 #except:
                 if telescope == 'HSC':
 
-                    PSF = pyfits.getdata(f'{imageDirectory}/{obj}/{obj}_HSC-{band.upper()}_psf.fits')
+                    PSF = pyfits.getdata(f'{imageDirectory}/{obj}_HSC-{band.upper()}_psf.fits')
 
                     zp = 27.0
                     
@@ -260,9 +260,9 @@ def galightDecompose(imageDirectory,cataloguePath,saveTo,showingPlots=False,star
 
 #if executing as a script:
 if __name__ == "__main__":
-    imageDirectory = "data/images/desisample"
-    cataloguePath = r"data/DESICatalogue.csv"
-    saveTo = r"results/desitargets/includinghost"
+    imageDirectory = r"data/newdata/sub"
+    cataloguePath = r"data/DESI_HSC_QSO_noSDSS_z_0.8_20pc.csv"
+    saveTo = r"results/desitargets/includinghost_set2"
     start = int(input("Start index: "))
     stop = int(input("End index: "))
     band = str(input("Band: "))
