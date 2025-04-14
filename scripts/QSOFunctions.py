@@ -5,8 +5,8 @@ def toFlux(magnitude,zeroflux):
     return (zeroflux*(10**(-(magnitude)/(2.5))))
 def toMagnitude(flux,zeroflux):
     return (-2.5)*np.log10(flux/zeroflux)
-def CollectSpectroscopicData(target,band):
-    wavelength,qso,host = np.loadtxt(f"results/PyQSOFit_test/{target}_data.csv",delimiter=",",unpack=True)
+def CollectSpectroscopicData(directory,target,band):
+    wavelength,qso,host = np.loadtxt(f"{directory}/{target}_data.csv",delimiter=",",unpack=True)
     GBandWavelength,GBandTransmissivity = np.loadtxt(f"data/filters/{band}_band.csv",skiprows=1,unpack=True)
 
     #first trim the spectrum data to only that within the bounds of the g band

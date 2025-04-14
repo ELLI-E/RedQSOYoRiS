@@ -57,8 +57,8 @@ class TargetData:
         try:
             self.wavelength,self.qsoFlux,self.hostFlux = np.loadtxt(f"{specResultDirectory}/{self.name}_data.csv",delimiter=",",unpack=True)
             self.contValue = np.loadtxt(f"{specResultDirectory}/{self.name}_cont.csv",delimiter=",",usecols=(2),skiprows=1)
-            self.specFGal["G"] = CollectSpectroscopicData(self.name,"g")
-            self.specFGal["R"] = CollectSpectroscopicData(self.name,"r")
+            self.specFGal["G"] = CollectSpectroscopicData(specResultDirectory,self.name,"g")
+            self.specFGal["R"] = CollectSpectroscopicData(specResultDirectory,self.name,"r")
             self.specSN = MedianSN(f"{specDataDirectory}/{self.name}_spec.csv")
         except FileNotFoundError:
             print(f"Attempted to collect spectral decomposition data for {self.name}, but file/s are missing")
