@@ -21,7 +21,7 @@ warnings.filterwarnings("ignore")
 QSOFit.set_mpl_style()
 
 path_ex = os.getcwd()
-saveDirectory = "results/pyQSOFit_set2_test"
+saveDirectory = "results/examplespectra"
 pd.set_option('display.max_columns', 100)
 
 DESI_HSC = pd.read_csv(r'data/DESI_HSC_QSO_noSDSS_z_0.8_20pc.csv')
@@ -30,8 +30,8 @@ DESI_HSC['DESI_ID'] = DESI_HSC['DESI_ID'].astype(str)
 
 #path_out = '/Users/tang/Documents/Binary_quasar/data/targets/sp_data/rescale/fitting/'
 #os.chdir('/Users/tang/Documents/red_quasars/DESI/DESI_QSO') # not sure where to set this, leaving out for now
-
-obj_list = DESI_HSC['DESI_ID'][:10]
+# example objects: ["39627896758735663","39627805876555929","396277581999016558","39627634556017139"]
+obj_list = ["39627634556017139"]
 for DESI_id in obj_list:
     obj_df = DESI_HSC[DESI_HSC['DESI_ID'] == DESI_id]
     data = pd.read_csv('data/spectra_set2/DESI_HSC_noSDSS_z_0.8_20pc/'+'%s_spec.csv'%DESI_id,index_col=0)
@@ -72,12 +72,12 @@ for DESI_id in obj_list:
                 # host decomposition parameters
                 decompose_host=decompose_host,  # If True, the host galaxy-QSO decomposition will be applied
                 host_prior=True, # If True, the code will adopt prior-informed method to assist decomposition. Currently, only 'CZBIN1' and 'DZBIN1' model for QSO PCA are available. And the model for galaxy must be PCA too.
-                host_prior_scale=0.2, # scale of prior panelty. Usually, 0.2 works fine for SDSS spectra. Adjust it smaller if you find the prior affect the fitting results too much.
+                host_prior_scale=0.1, # scale of prior panelty. Usually, 0.2 works fine for SDSS spectra. Adjust it smaller if you find the prior affect the fitting results too much.
         
                 host_line_mask=True, # If True, the line region of galaxy will be masked when subtracted from original spectra.
                 decomp_na_mask=True, # If True, the narrow line region will be masked when perform decomposition
                 qso_type='CZBIN1', # PCA template name for quasar
-                npca_qso=10, # numebr of quasar templates
+                npca_qso=5, # numebr of quasar templates
                 host_type='PCA', # template name for galaxy
                 npca_gal=5, # number of galaxy templates
                 
@@ -124,6 +124,7 @@ for DESI_id in obj_list:
                 kwargs_plot={
                     'save_fig_path': saveDirectory,  # The output path of the figure
                     'broad_fwhm'   : broad_fwhm , # km/s, lower limit that code decide if a line component belongs to broad component
+                    'ylims'        : [-0.5,3.5]
                     #'plot_br_prop' : True # Plot broad line properties
                 },
                 kwargs_conti_emcee={},
